@@ -3,15 +3,19 @@ let isSent = false;
 let countdown;
 let timeLeft = 3;
 
-// 2. HELPER FUNCTIONS
+// Updated Helper for Multiple Contacts
 const smsUrlBuilder = (body) => {
-    // Look for the input where the user types the contact number
-    const contactInput = document.getElementById('contact1'); 
-    // If it's empty, use a default emergency number
-    const contactNum = contactInput && contactInput.value ? contactInput.value : "+2348000000000"; 
+    const c1 = document.getElementById('contact1')?.value || "";
+    const c2 = document.getElementById('contact2')?.value || "";
     
-    return `sms:${contactNum}?body=${encodeURIComponent(body)}`;
-    };
+    // Combine numbers with a comma, filter out empty ones
+    const allContacts = [c1, c2].filter(num => num.trim() !== "").join(",");
+    
+    // Default fallback if both are empty
+    const finalRecipient = allContacts || "+2348000000000"; 
+    
+    return `sms:${finalRecipient}?body=${encodeURIComponent(body)}`;
+};
 const showSmsButton = (smsUrl) => {
     const statusMsg = document.getElementById('statusMsg');
     statusMsg.innerHTML = `
@@ -59,6 +63,14 @@ document.addEventListener('DOMContentLoaded', () => {
         allergiesInput.value = localStorage.getItem('vgn_allergies') || '';
         allergiesInput.addEventListener('input', () => localStorage.setItem('vgn_allergies', allergiesInput.value));
     }
+
+    const contact2Input = document.getElementById('contact2');
+if(contact2Input) {
+    contact2Input.value = localStorage.getItem('vgn_contact2') || '';
+    contact2Input.addEventListener('input', () => {
+        localStorage.setItem('vgn_contact2', contact2Input.value);
+    });
+}
 
     // Stealth Siren Logic
     window.playSiren = () => {
