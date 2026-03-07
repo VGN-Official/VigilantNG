@@ -3,32 +3,44 @@ let isSent = false;
 let countdown;
 let timeLeft = 3;
 
-// Updated Helper for Multiple Contacts
-const smsUrlBuilder = (body) => {
+// 1. THE FOOLPROOF BUILDER
+const smsUrlBuilder = (number, body) => {
+    const cleanNumber = number.replace(/\s+/g, '');
+    const target = cleanNumber || "+2348000000000";
+    // Using '?' for single recipients is 100% stable on Android & iOS
+    return `sms:${target}?body=${encodeURIComponent(body)}`;
+};
+// 2. THE MULTI-BUTTON DISPLAY
+const showSmsButton = (body) => {
+    const statusMsg = document.getElementById('statusMsg');
+    
+    // Grab numbers from inputs
     const c1 = document.getElementById('contact1')?.value || "";
     const c2 = document.getElementById('contact2')?.value || "";
-    
-const cleanC1 = c1.replace(/\s+/g, '');
-const cleanC2 = c2.replace(/\s+/g, '');
-const contacts = [cleanC1, cleanC2].filter(n => n.length > 0);
 
-    // TRICK: For multi-contact with a body on Android, 
-    // some apps prefer a semicolon and a different body prefix.
-    const recipients = contacts.join(';'); 
-    
-    // If multiple contacts exist, we use &body instead of ?body for some Android versions
-    const separator = recipients.includes(';') ? '&' : '?';
-    
-    return `sms:${recipients}${separator}body=${encodeURIComponent(body)}`;
-};
-const showSmsButton = (smsUrl) => {
-    const statusMsg = document.getElementById('statusMsg');
-    statusMsg.innerHTML = `
-        <a href="${smsUrl}" id="send-sms-final" style="background: #25D366; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; margin-top:10px;">
-           📲 SEND SMS
-        </a>`;
-};
+    let buttonsHTML = `<div style="margin-top:15px;">`;
 
+    if (c1) {
+        buttonsHTML += `
+            <a href="${smsUrlBuilder(c1, body)}" class="sos-final-btn" style="background: #d32f2f; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; margin-bottom:12px; border: 2px solid #b71c1c;">
+               🚨 SEND PRIMARY ALERT
+            </a>`;
+    }
+
+    if (c2) {
+        buttonsHTML += `
+            <a href="${smsUrlBuilder(c2, body)}" class="sos-final-btn" style="background: #333; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid #000;">
+               🛡️ SEND BACKUP ALERT
+            </a>`;
+    }
+
+    if (!c1 && !c2) {
+        buttonsHTML += `<p style="color:#ff5252; font-weight:bold;">⚠️ No contacts set in Settings!</p>`;
+    }
+
+    buttonsHTML += `</div>`;
+    statusMsg.innerHTML = buttonsHTML;
+    };
 // 3. THE RESET LOGIC
 window.stopAll = () => {
     if (confirm("Do you want to stop siren and reset App? (Stop & Reset?)")) {
@@ -111,26 +123,35 @@ if(contact2Input) {
         statusMsg.innerText = "VigilantNG Ready";
     };
 
-    const finishSOS = () => {
-        isSent = true;
-        sosButton.classList.add('sent');
-        statusMsg.innerText = "Processing Emergency...";
+   const finishSOS = () => {
+    isSent = true;
+    const sosButton = document.getElementById('sos-btn');
+    if (sosButton) sosButton.classList.add('sent');
+    
+    // Get Intelligence Data
+    const blood = localStorage.getItem('vgn_blood') || "Not Provided";
+    const allergies = localStorage.getItem('vgn_allergies') || "None";
 
-        const blood = localStorage.getItem('vgn_blood') || "Not Provided";
-        const allergies = localStorage.getItem('vgn_allergies') || "None";
+    navigator.geolocation.getCurrentPosition((position) => {
+        const lat = position.coords.latitude;
+        const lon = position.coords.longitude;
+        const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
-        navigator.geolocation.getCurrentPosition((position) => {
-            const mapUrl = `https://www.google.com/maps?q=$${position.coords.latitude},${position.coords.longitude}`;
-            const smsBody = `VIGILANTNG EMERGENCY!%0ALocation: ${mapUrl}%0ABlood: ${blood}%0AAllergies: ${allergies}`;
-            showSmsButton(smsUrlBuilder(smsBody));
-            window.playSiren();
-        }, (err) => {
-            const smsBody = `VIGILANTNG EMERGENCY! (GPS Off)%0ABlood: ${blood}%0AAllergies: ${allergies}`;
-            showSmsButton(smsUrlBuilder(smsBody));
-            window.playSiren();
-        }, { enableHighAccuracy: true });
-    };
+        const smsBody = `VIGN EMERGENCY ALERT!%0A` +
+                        `Location: ${mapUrl}%0A` +
+                        `Blood: ${blood}%0A` +
+                        `Allergies: ${allergies}`;
 
+        showSmsButton(smsBody); // Trigger the dual buttons
+        window.playSiren();
+    }, (err) => {
+        const smsBody = `VIGN EMERGENCY! (GPS Off)%0A` +
+                        `Blood: ${blood}%0A` +
+                        `Allergies: ${allergies}`;
+        showSmsButton(smsBody);
+        window.playSiren();
+    }, { enableHighAccuracy: true });
+};
     // Listeners
     sosButton.addEventListener('mousedown', startSOS);
     sosButton.addEventListener('mouseup', cancelSOS);
