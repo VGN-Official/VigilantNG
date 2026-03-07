@@ -38,13 +38,7 @@ const showSmsButton = (body) => {
         buttonsHTML += `<p style="color:#ff5252; font-weight:bold;">⚠️ No contacts set in Settings!</p>`;
     }
 
-    //buttonsHTML += `</div>`;
-
-    buttonsHTML += `
-    <a href="${url1}" style="background: #1565C0; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; margin-bottom:12px; border-bottom: 4px solid #0D47A1;">
-       🚨 ALERT SCHOOL SECURITY
-    </a>`;
-
+    buttonsHTML += `</div>`;
     statusMsg.innerHTML = buttonsHTML;
     };
 // 3. THE RESET LOGIC
