@@ -8,13 +8,24 @@ const smsUrlBuilder = (body) => {
     const c1 = document.getElementById('contact1')?.value || "";
     const c2 = document.getElementById('contact2')?.value || "";
     
-    // Combine numbers with a comma, filter out empty ones
-    const allContacts = [c1, c2].filter(num => num.trim() !== "").join(",");
+    // Clean the numbers (remove spaces/dashes)
+    const cleanC1 = c1.replace(/\s+/g, '');
+    const cleanC2 = c2.replace(/\s+/g, '');
     
-    // Default fallback if both are empty
-    const finalRecipient = allContacts || "+2348000000000"; 
+    // Create an array of valid numbers
+    const contacts = [cleanC1, cleanC2].filter(n => n.length > 0);
     
-    return `sms:${finalRecipient}?body=${encodeURIComponent(body)}`;
+    // Determine the separator: 
+    // Android usually prefers a comma (,) 
+    // iOS/Some apps prefer a semicolon (;)
+    // We will use a comma as the primary standard
+    const separator = ","; 
+    const finalRecipients = contacts.join(separator);
+    
+    const defaultNum = "+2348000000000";
+    const target = finalRecipients || defaultNum;
+
+    return `sms:${target}?body=${encodeURIComponent(body)}`;
 };
 const showSmsButton = (smsUrl) => {
     const statusMsg = document.getElementById('statusMsg');
