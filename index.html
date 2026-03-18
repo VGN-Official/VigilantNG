@@ -13,7 +13,7 @@
     <link rel="icon" type="image/png" href="icon.png">
     <link rel="apple-touch-icon" href="icon.png">
     <link rel="manifest" href="manifest.json">
-
+    <link rel="icon" href="data:image/svg+xml,<svg xmlns=%22http://www.w3.org/2000/svg%22 viewBox=%220 0 100 100%22><text y=%22.9em%22 font-size=%2290%22>🛡️</text></svg>">
     <script>
         if ('serviceWorker' in navigator) {
             window.addEventListener('load', () => {
@@ -73,6 +73,18 @@
 
         <button id="sos-btn" class="sos-button">SOS</button>
 
+        <div class="checkin-panel" style="margin-top: 20px; text-align: center; background: #e3f2fd; padding: 15px; border-radius: 10px; border: 1px solid #1565C0;">
+            <h3 style="font-size: 1rem; color: #1565C0;">Resident Check-In</h3>
+    
+            <input type="text" id="bloodGroup" placeholder="Enter Apartment." 
+            style="display: block; margin: 5px auto; padding: 10px; width: 80%; border-radius: 5px; border: 1px solid #90caf9;">
+    
+            <input type="text" id="allergies" placeholder="Residence No." 
+            style="display: block; margin: 5px auto; padding: 10px; width: 80%; border-radius: 5px; border: 1px solid #90caf9;">
+           
+            <p style="font-size: 0.7rem; color: #1565C0;">Data is used to identify you in a distress signal.</p>
+        </div>
+
         <div class="settings-panel" style="margin-top: 40px; text-align: center; background: #f5f5f5; padding: 15px; border-radius: 10px; border: 1px solid #ddd;">
             <h3 style="font-size: 1rem; color: #333;">Emergency Contacts</h3>
             <input type="text" id="contact1" placeholder="Contact 1 (e.g. +234...)" value="+234XXXXXXXXXX" style="display: block; margin: 5px auto; padding: 8px; border-radius: 5px; border: 1px solid #ccc;">
@@ -81,23 +93,11 @@
         </div>
 
         <div id="vgn-settings" style="background: #1a1a1a; padding: 20px; border-radius: 15px; margin-top: 30px; border: 1px solid #333; text-align: left;">
-            <h3 style="color: #d32f2f; margin-bottom: 15px; text-transform: uppercase;">pricise location</h3>
-
+            
         <div style="display: flex; justify-content: space-between; align-items: center; margin-bottom: 20px; padding-bottom: 10px; border-bottom: 1px solid #222;">
         <label for="stealthToggle" style="color: #eee;">Stealth Mode (Quiet)</label>
         <input type="checkbox" id="stealthToggle" style="width: 25px; height: 25px; cursor: pointer;">
         </div>
-
-        <div style="margin-bottom: 15px;">
-            <label style="color: #aaa; font-size: 0.8rem; display: block; margin-bottom: 5px;">STREET</label>
-            <input type="text" id="street" placeholder="New Extention, etc." style="width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px;">
-        </div>
-
-        <div>
-            <label style="color: #aaa; font-size: 0.8rem; display: block; margin-bottom: 5px;">House Number</label>
-            <textarea id="numbers" placeholder="E.g. 608..." style="width: 100%; padding: 12px; background: #222; border: 1px solid #444; color: white; border-radius: 8px; height: 60px;"></textarea>
-        </div>
-    </div>
 
     </main>
 

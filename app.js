@@ -14,33 +14,33 @@ const smsUrlBuilder = (number, body) => {
 const showSmsButton = (body) => {
     const statusMsg = document.getElementById('statusMsg');
     
-    // Grab numbers from inputs
-    const c1 = document.getElementById('contact1')?.value || "";
-    const c2 = document.getElementById('contact2')?.value || "";
+    // Pull numbers directly from the specific keys you used
+    const c1 = localStorage.getItem('vgn_contact') || "";
+    const c2 = localStorage.getItem('vgn_contact2') || "";
 
     let buttonsHTML = `<div style="margin-top:15px;">`;
 
     if (c1) {
         buttonsHTML += `
-            <a href="${smsUrlBuilder(c1, body)}" class="sos-final-btn" style="background: #d32f2f; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; margin-bottom:12px; border: 2px solid #b71c1c;">
-               🚨 SEND PRIMARY ALERT
+            <a href="${smsUrlBuilder(c1, body)}" style="background: #2E7D32; display:block; padding: 22px; color: white; border-radius: 15px; text-decoration: none; font-weight: bold; text-align: center; margin-bottom:15px; border-bottom: 5px solid #0D47A1; font-size: 1.1em;">
+               🚨 ALERT ESTATE GATE
             </a>`;
     }
 
     if (c2) {
         buttonsHTML += `
-            <a href="${smsUrlBuilder(c2, body)}" class="sos-final-btn" style="background: #333; display:block; padding: 20px; color: white; border-radius: 12px; text-decoration: none; font-weight: bold; text-align: center; border: 2px solid #000;">
-               🛡️ SEND BACKUP ALERT
+            <a href="${smsUrlBuilder(c2, body)}" style="background: #455A64; display:block; padding: 20px; color: white; border-radius: 15px; text-decoration: none; font-weight: bold; text-align: center; border-bottom: 5px solid #263238;">
+               🛡️ ALERT CHAIRMAN/EXCO
             </a>`;
     }
 
     if (!c1 && !c2) {
-        buttonsHTML += `<p style="color:#ff5252; font-weight:bold;">⚠️ No contacts set in Settings!</p>`;
+        buttonsHTML += `<p style="color:#2E7D32; font-weight:bold; text-align:center;">⚠️ Please set contacts in Settings!</p>`;
     }
 
     buttonsHTML += `</div>`;
     statusMsg.innerHTML = buttonsHTML;
-    };
+};
 // 3. THE RESET LOGIC
 window.stopAll = () => {
     if (confirm("Do you want to stop siren and reset App? (Stop & Reset?)")) {
@@ -126,31 +126,45 @@ if(contact2Input) {
    const finishSOS = () => {
     isSent = true;
     const sosButton = document.getElementById('sos-btn');
+    const statusMsg = document.getElementById('statusMsg');
     if (sosButton) sosButton.classList.add('sent');
     
-    // Get Intelligence Data
-    const blood = localStorage.getItem('vgn_blood') || "Not Provided";
-    const allergies = localStorage.getItem('vgn_allergies') || "None";
+    // 1. PULL DATA FROM THE EXACT LOCALSTORAGE KEYS
+    // We match 'vgn_blood' and 'vgn_allergies' which your listeners save to
+    const hostel = localStorage.getItem('vgn_blood') || "NOT SET";
+    const studentId = localStorage.getItem('vgn_allergies') || "Student";
+
+    // 2. SHOW IMMEDIATE FEEDBACK
+    statusMsg.innerHTML = `<p style="color: #2E7D32; font-weight: bold; text-align: center;">🛰️ Establishing GPS Lock...</p>`;
 
     navigator.geolocation.getCurrentPosition((position) => {
         const lat = position.coords.latitude;
         const lon = position.coords.longitude;
+        // Corrected Map URL syntax
         const mapUrl = `https://www.google.com/maps?q=${lat},${lon}`;
 
-        const smsBody = `VIGN EMERGENCY ALERT!%0A` +
-                        `Location: ${mapUrl}%0A` +
-                        `Street: ${street}%0A` +
-                        `House: ${house}`;
+        const smsBody = `🚨 ESTATE SECURITY ALERT!
+LOCATION: ${hostel}
+ID/LEVEL: ${studentId}
+GPS: ${mapUrl}
+Status: Distress signal triggered by student.`;
 
-        showSmsButton(smsBody); // Trigger the dual buttons
+        showSmsButton(smsBody); 
         window.playSiren();
     }, (err) => {
-        const smsBody = `VIGN EMERGENCY! (GPS Off)%0A` +
-                        `Street: ${street}%0A` +
-                        `House Number: ${house}`;
+        // This is the part seen in your screenshot!
+        const smsBody = `⚠️ ESTATE EMERGENCY (GPS OFF)
+ESTATE: ${hostel}
+APARTMENT: ${studentId}
+Status: Triggered - GPS Unavailable.`;
+                    
         showSmsButton(smsBody);
         window.playSiren();
-    }, { enableHighAccuracy: true });
+    }, { 
+        enableHighAccuracy: true, 
+        timeout: 8000,
+        maximumAge: 0 
+    });
 };
     // Listeners
     sosButton.addEventListener('mousedown', startSOS);
